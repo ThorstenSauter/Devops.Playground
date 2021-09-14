@@ -19,6 +19,12 @@ stages:
   - job:
     displayName: Build and test the solution
     steps:
+    - task: UseDotNet@2
+        displayName: 'Acquire .NET 6 SDK'
+        inputs:
+          packageType: 'sdk'
+          version: '6.0.x'
+          includePreviewVersions: true
     - task: DotNetCoreCLI@2
       displayName: 'Restore NuGet packages for solution'
       inputs:
@@ -82,7 +88,9 @@ stages:
               slotName: 'staging'
               package: '$(PublishPath)/**/*.zip'
               runtimeStack: 'DOTNET|3.1'
-              appSettings: '-FUNCTIONS_WORKER_RUNTIME dotnet-isolated'
+              appSettings: |
+                -FUNCTIONS_WORKER_RUNTIME dotnet-isolated
+                -FUNCTIONS_EXTENSION_VERSION ~4
           
 - stage: Production
   dependsOn: Staging
@@ -111,4 +119,6 @@ stages:
               appName: 'devops-playground'
               package: '$(PublishPath)/**/*.zip'
               runtimeStack: 'DOTNET|3.1'
-              appSettings: '-FUNCTIONS_WORKER_RUNTIME dotnet-isolated'
+              appSettings: |
+                -FUNCTIONS_WORKER_RUNTIME dotnet-isolated
+                -FUNCTIONS_EXTENSION_VERSION ~4
