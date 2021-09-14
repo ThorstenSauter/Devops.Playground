@@ -90,7 +90,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy to Azure Functions
-    environment: 'Staging'
+    environment: 'Production'
     pool: 
       vmImage: $(Image)
     strategy:
