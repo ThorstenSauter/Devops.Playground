@@ -67,7 +67,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy to Azure Functions
-    environment: 'Staging.default'
+    environment: 'Staging'
     pool: 
       vmImage: $(Image)
     strategy:
@@ -99,7 +99,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy to Azure Functions
-    environment: 'Staging.default'
+    environment: 'Staging'
     pool: 
       vmImage: $(Image)
     strategy:
