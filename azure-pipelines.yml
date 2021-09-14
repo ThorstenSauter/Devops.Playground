@@ -95,7 +95,7 @@ stages:
                     slotName: 'staging'
                     package: '$(PublishPath)/**/*.zip'
                     appSettings: '-FUNCTIONS_WORKER_RUNTIME dotnet-isolated'
-                    deploymentMethod: 'auto'
+                    deploymentMethod: 'zipDeploy'
 
   - stage: Production
     dependsOn: Staging
@@ -124,4 +124,4 @@ stages:
                     appName: 'devops-playground'
                     package: '$(PublishPath)/**/*.zip'
                     appSettings: '-FUNCTIONS_WORKER_RUNTIME dotnet-isolated'
-                    deploymentMethod: 'auto'
+                    deploymentMethod: 'zipDeploy'
