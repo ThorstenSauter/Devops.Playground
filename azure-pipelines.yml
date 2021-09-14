@@ -88,14 +88,14 @@ stages:
                   displayName: 'Publish to staging deployment slot'
                   inputs:
                     azureSubscription: 'azure-devops-playground'
-                    appType: 'functionAppLinux'
+                    appType: 'functionApp'
                     appName: 'devops-playground'
                     deployToSlotOrASE: true
                     resourceGroupName: 'devops-playground'
                     slotName: 'staging'
                     package: '$(PublishPath)/**/*.zip'
-                    runtimeStack: 'DOTNET|3.1'
                     appSettings: '-FUNCTIONS_WORKER_RUNTIME dotnet-isolated'
+                    deploymentMethod: 'auto'
 
   - stage: Production
     dependsOn: Staging
@@ -120,8 +120,8 @@ stages:
                   displayName: 'Publish to production slot'
                   inputs:
                     azureSubscription: 'azure-devops-playground'
-                    appType: 'functionAppLinux'
+                    appType: 'functionApp'
                     appName: 'devops-playground'
                     package: '$(PublishPath)/**/*.zip'
-                    runtimeStack: 'DOTNET|3.1'
                     appSettings: '-FUNCTIONS_WORKER_RUNTIME dotnet-isolated'
+                    deploymentMethod: 'auto'
