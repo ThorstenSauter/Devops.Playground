@@ -1,5 +1,5 @@
 trigger:
-- main
+  - main
 
 pool:
   vmImage: $(Image)
@@ -13,112 +13,112 @@ variables:
   ArtifactName: 'devops-playground-api'
 
 stages:
-- stage: Build
-  displayName: 'Build stage'
-  jobs:
-  - job:
-    displayName: Build and test the solution
-    steps:
-    - task: UseDotNet@2
-        displayName: 'Acquire .NET 6 SDK'
-        inputs:
-          packageType: 'sdk'
-          version: '6.0.x'
-          includePreviewVersions: true
-    - task: DotNetCoreCLI@2
-      displayName: 'Restore NuGet packages for solution'
-      inputs:
-        command: 'restore'
-        projects: '$(SolutionPath)'
-        feedsToUse: 'select'
-    - task: DotNetCoreCLI@2
-      displayName: 'Build the solution'
-      inputs:
-        command: 'build'
-        projects: '$(SolutionPath)'
-        arguments: '--no-restore --configuration $(Configuration)'
-    - task: DotNetCoreCLI@2
-      displayName: 'Run tests'
-      inputs:
-        command: 'test'
-        projects: '$(SolutionPath)'
-        arguments: '--no-build --configuration $(Configuration) --collect "Code coverage"'
-    - task: DotNetCoreCLI@2
-      displayName: 'Publish project'
-      inputs:
-        command: 'publish'
-        publishWebProjects: false
-        projects: '$(ProjectPath)'
-        arguments: '--no-build --configuration $(Configuration) --output $(PublishPath)'
-        zipAfterPublish: true
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish pipeline artifact'
-      inputs:
-        targetPath: '$(PublishPath)'
-        artifact: '$(ArtifactName)'
-        publishLocation: 'pipeline'
+  - stage: Build
+    displayName: 'Build stage'
+    jobs:
+      - job:
+        displayName: Build and test the solution
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Acquire .NET 6 SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '6.0.x'
+              includePreviewVersions: true
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet packages for solution'
+            inputs:
+              command: 'restore'
+              projects: '$(SolutionPath)'
+              feedsToUse: 'select'
+          - task: DotNetCoreCLI@2
+            displayName: 'Build the solution'
+            inputs:
+              command: 'build'
+              projects: '$(SolutionPath)'
+              arguments: '--no-restore --configuration $(Configuration)'
+          - task: DotNetCoreCLI@2
+            displayName: 'Run tests'
+            inputs:
+              command: 'test'
+              projects: '$(SolutionPath)'
+              arguments: '--no-build --configuration $(Configuration) --collect "Code coverage"'
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish project'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: '$(ProjectPath)'
+              arguments: '--no-build --configuration $(Configuration) --output $(PublishPath)'
+              zipAfterPublish: true
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish pipeline artifact'
+            inputs:
+              targetPath: '$(PublishPath)'
+              artifact: '$(ArtifactName)'
+              publishLocation: 'pipeline'
 
-- stage: Staging
-  dependsOn: Build
-  displayName: 'Deploy to staging environment'
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy to Azure Functions
-    environment: 'Staging'
-    pool: 
-      vmImage: $(Image)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download published project'
-            inputs:
-              buildType: 'current'
-              artifactName: '$(ArtifactName)'
-              targetPath: '$(PublishPath)'
-          - task: AzureFunctionApp@1
-            displayName: 'Publish to staging deployment slot'
-            inputs:
-              azureSubscription: 'azure-devops-playground'
-              appType: 'functionAppLinux'
-              appName: 'devops-playground'
-              deployToSlotOrASE: true
-              resourceGroupName: 'devops-playground'
-              slotName: 'staging'
-              package: '$(PublishPath)/**/*.zip'
-              runtimeStack: 'DOTNET|3.1'
-              appSettings: |
-                -FUNCTIONS_WORKER_RUNTIME dotnet-isolated
-                -FUNCTIONS_EXTENSION_VERSION ~4
-          
-- stage: Production
-  dependsOn: Staging
-  displayName: 'Deploy to production environment'
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy to Azure Functions
-    environment: 'Production'
-    pool: 
-      vmImage: $(Image)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download published project'
-            inputs:
-              buildType: 'current'
-              artifactName: '$(ArtifactName)'
-              targetPath: '$(PublishPath)'
-          - task: AzureFunctionApp@1
-            displayName: 'Publish to production slot'
-            inputs:
-              azureSubscription: 'azure-devops-playground'
-              appType: 'functionAppLinux'
-              appName: 'devops-playground'
-              package: '$(PublishPath)/**/*.zip'
-              runtimeStack: 'DOTNET|3.1'
-              appSettings: |
-                -FUNCTIONS_WORKER_RUNTIME dotnet-isolated
-                -FUNCTIONS_EXTENSION_VERSION ~4
+  - stage: Staging
+    dependsOn: Build
+    displayName: 'Deploy to staging environment'
+    jobs:
+      - deployment: Deploy
+        displayName: Deploy to Azure Functions
+        environment: 'Staging'
+        pool:
+          vmImage: $(Image)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  displayName: 'Download published project'
+                  inputs:
+                    buildType: 'current'
+                    artifactName: '$(ArtifactName)'
+                    targetPath: '$(PublishPath)'
+                - task: AzureFunctionApp@1
+                  displayName: 'Publish to staging deployment slot'
+                  inputs:
+                    azureSubscription: 'azure-devops-playground'
+                    appType: 'functionAppLinux'
+                    appName: 'devops-playground'
+                    deployToSlotOrASE: true
+                    resourceGroupName: 'devops-playground'
+                    slotName: 'staging'
+                    package: '$(PublishPath)/**/*.zip'
+                    runtimeStack: 'DOTNET|3.1'
+                    appSettings: |
+                      -FUNCTIONS_WORKER_RUNTIME dotnet-isolated
+                      -FUNCTIONS_EXTENSION_VERSION ~4
+
+  - stage: Production
+    dependsOn: Staging
+    displayName: 'Deploy to production environment'
+    jobs:
+      - deployment: Deploy
+        displayName: Deploy to Azure Functions
+        environment: 'Production'
+        pool:
+          vmImage: $(Image)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  displayName: 'Download published project'
+                  inputs:
+                    buildType: 'current'
+                    artifactName: '$(ArtifactName)'
+                    targetPath: '$(PublishPath)'
+                - task: AzureFunctionApp@1
+                  displayName: 'Publish to production slot'
+                  inputs:
+                    azureSubscription: 'azure-devops-playground'
+                    appType: 'functionAppLinux'
+                    appName: 'devops-playground'
+                    package: '$(PublishPath)/**/*.zip'
+                    runtimeStack: 'DOTNET|3.1'
+                    appSettings: |
+                      -FUNCTIONS_WORKER_RUNTIME dotnet-isolated
+                      -FUNCTIONS_EXTENSION_VERSION ~4
