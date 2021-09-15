@@ -1,11 +1,12 @@
 using Xunit;
 
-namespace Devops.Playground.Api.UnitTests;
-
-public class UnitTest1
+namespace Devops.Playground.Api.UnitTests
 {
-    [Fact]
-    public void Test1()
+    public class UnitTest1
     {
+        [Fact]
+        public void Test1()
+        {
+        }
     }
 }
